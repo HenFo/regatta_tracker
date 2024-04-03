@@ -3,22 +3,34 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:regatta_tracker2/HelperClasses/bojen.dart';
 import 'package:regatta_tracker2/HelperClasses/kurs.dart';
 
+typedef BojeCallbackFunction = void Function(Boje);
+
 class MapDrawer {
-  static Marker markerFromBoje(Boje boje) {
+  static Marker markerFromBoje(Boje boje,
+      {BojeCallbackFunction? onDoubleTapCallback}) {
+    var iconWithGesture = GestureDetector(
+      child: boje.icon,
+      onDoubleTap: () =>
+          onDoubleTapCallback != null ? onDoubleTapCallback(boje) : () => {},
+    );
+
     if (boje.type == BojenTyp.pinEnd) {
       return Marker(
           width: 30,
           height: 30,
           point: boje.position,
-          child: boje.icon,
+          child: iconWithGesture,
           alignment: const Alignment(0, -0.5));
     }
     return Marker(
-        width: 30, height: 30, point: boje.position, child: boje.icon);
+        width: 30, height: 30, point: boje.position, child: iconWithGesture);
   }
 
-  static List<Marker> markerFromBojen(Kurs kurs) {
-    return kurs.bojen.map(markerFromBoje).toList(growable: false);
+  static List<Marker> markerFromBojen(Kurs kurs,
+      {BojeCallbackFunction? onDoubleTapCallback}) {
+    return kurs.bojen
+        .map((b) => markerFromBoje(b, onDoubleTapCallback: onDoubleTapCallback))
+        .toList(growable: false);
   }
 
   static List<Polyline> linesFromBojen(Kurs kurs) {

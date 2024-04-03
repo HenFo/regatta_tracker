@@ -3,7 +3,6 @@ import 'package:regatta_tracker2/misc/vector_functions.dart';
 import 'package:vector_math/vector_math.dart';
 
 abstract class Kurs {
-
   Vector2 direction = Vector2(0, 1);
 
   bool get startEqualFinish;
@@ -13,6 +12,7 @@ abstract class Kurs {
   List<StartZielTonne>? get finishLine;
 
   void addBoje(Boje boje);
+  void removeBoje(Boje boje);
 }
 
 class UpAndDownKurs extends Kurs {
@@ -87,4 +87,93 @@ class UpAndDownKurs extends Kurs {
         BojenTyp.pinEnd,
         BojenTyp.startschiff
       ];
+
+  @override
+  void removeBoje(Boje boje) {
+    switch (boje.type) {
+      case BojenTyp.luvTonne:
+        luv = null;
+        break;
+      case BojenTyp.leeTonne:
+        lee = null;
+        break;
+      case BojenTyp.ablaufTonne:
+        ablauf = null;
+        break;
+      case BojenTyp.pinEnd:
+        pinend = null;
+        break;
+      case BojenTyp.startschiff:
+        schiff = null;
+        break;
+      default:
+        print("Boje nicht verfügbar");
+        return;
+    }
+  }
+}
+
+class UpAndDownWithGateKurs extends UpAndDownKurs {
+  AblaufTonne? lee2;
+
+  @override
+  List<Boje> get bojen =>
+      [luv, lee, lee2, ablauf, pinend, schiff].nonNulls.toList(growable: false);
+
+  @override
+  void addBoje(Boje boje) {
+    switch (boje.type) {
+      case BojenTyp.luvTonne:
+        luv = boje as AblaufTonne;
+        break;
+      case BojenTyp.leeTonne:
+        if (lee != null) {
+          lee2 = boje as AblaufTonne;
+        } else {
+          lee = boje as AblaufTonne;
+        }
+        break;
+      case BojenTyp.ablaufTonne:
+        ablauf = boje as AblaufTonne;
+        break;
+      case BojenTyp.pinEnd:
+        pinend = boje as StartZielTonne;
+        break;
+      case BojenTyp.startschiff:
+        schiff = boje as StartZielTonne;
+        break;
+      default:
+        print("Boje nicht verfügbar");
+        return;
+    }
+    super.direction = _calcDirection();
+  }
+
+  @override
+  void removeBoje(Boje boje) {
+    switch (boje.type) {
+      case BojenTyp.luvTonne:
+        luv = null;
+        break;
+      case BojenTyp.leeTonne:
+        if (boje == lee) {
+          lee = null;
+        } else if (boje == lee2) {
+          lee2 = null;
+        }
+        break;
+      case BojenTyp.ablaufTonne:
+        ablauf = null;
+        break;
+      case BojenTyp.pinEnd:
+        pinend = null;
+        break;
+      case BojenTyp.startschiff:
+        schiff = null;
+        break;
+      default:
+        print("Boje nicht verfügbar");
+        return;
+    }
+  }
 }

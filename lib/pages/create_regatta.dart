@@ -16,7 +16,7 @@ class BuildRegattaPage extends StatefulWidget {
 }
 
 class _BuildRegattaPageState extends State<BuildRegattaPage> {
-  Kurs kurs = UpAndDownKurs();
+  Kurs kurs = UpAndDownWithGateKurs();
 
   @override
   Widget build(BuildContext context) {
@@ -36,10 +36,10 @@ class _BuildRegattaPageState extends State<BuildRegattaPage> {
           onLongPress: (pos, latlng) => _bottomSheet(context, latlng),
         ),
         children: [
-          openStreetMapTileLayer,
+          // openStreetMapTileLayer,
           // openSeaMapMarkersTileLayer,
           PolylineLayer(polylines: MapDrawer.linesFromBojen(kurs)),
-          MarkerLayer(markers: MapDrawer.markerFromBojen(kurs)),
+          MarkerLayer(markers: MapDrawer.markerFromBojen(kurs, onDoubleTapCallback: _removeBoje)),
         ],
       ),
     );
@@ -56,7 +56,7 @@ class _BuildRegattaPageState extends State<BuildRegattaPage> {
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Wrap(
-              spacing: 8.0,
+              // spacing: 8.0,
               runSpacing: 4.0,
               children: [
                 for (BojenTyp type in kurs.allowedTypes)
@@ -77,7 +77,8 @@ class _BuildRegattaPageState extends State<BuildRegattaPage> {
       },
       child: Row(
         children: [
-          Container(width:20, height: 20, child: Boje.baseIcon(type)),
+          SizedBox(width:20, height: 20, child: Boje.baseIcon(type)),
+          const SizedBox(width: 4,),
           Expanded(child: Text(type.name)),
         ],
       ),
@@ -88,6 +89,12 @@ class _BuildRegattaPageState extends State<BuildRegattaPage> {
     setState(() {
       kurs.addBoje(Boje.fromType(type, latlng));
       print(latlng);
+    });
+  }
+
+  void _removeBoje(Boje boje) {
+    setState(() {
+      kurs.removeBoje(boje);
     });
   }
 }
