@@ -28,23 +28,49 @@ class UpAndDownKurs extends Kurs {
 
   UpAndDownKurs();
 
+  set _setLuv(AblaufTonne boje) {
+    luv = boje;
+    luv!.nummer = 1;
+  }
+
+  set _setLee(AblaufTonne boje) {
+    lee = boje;
+    lee!.nummer = ablauf == null ? 2 : 3;
+  }
+
+  set _setAblauf(AblaufTonne boje) {
+    ablauf = boje;
+    ablauf!.nummer = 2;
+    lee?.nummer = 3;
+  }
+
+  set _setPinend(StartZielTonne boje) {
+    pinend = boje;
+    pinend!.istZiel = true;
+  }
+
+  set _setSchiff(StartZielTonne boje) {
+    schiff = boje;
+    schiff!.istZiel = true;
+  }
+
   @override
   void addBoje(Boje boje) {
     switch (boje.type) {
       case BojenTyp.luvTonne:
-        luv = boje as AblaufTonne;
+        _setLuv = boje as AblaufTonne;
         break;
       case BojenTyp.leeTonne:
-        lee = boje as AblaufTonne;
+        _setLee = boje as AblaufTonne;
         break;
       case BojenTyp.ablaufTonne:
-        ablauf = boje as AblaufTonne;
+        _setAblauf = boje as AblaufTonne;
         break;
       case BojenTyp.pinEnd:
-        pinend = boje as StartZielTonne;
+        _setPinend = boje as StartZielTonne;
         break;
       case BojenTyp.startschiff:
-        schiff = boje as StartZielTonne;
+        _setSchiff = boje as StartZielTonne;
         break;
       default:
         print("Boje nicht verfügbar");
@@ -99,6 +125,7 @@ class UpAndDownKurs extends Kurs {
         break;
       case BojenTyp.ablaufTonne:
         ablauf = null;
+        lee?.nummer = 2;
         break;
       case BojenTyp.pinEnd:
         pinend = null;
@@ -121,40 +148,25 @@ class UpAndDownWithGateKurs extends UpAndDownKurs {
       [luv, lee, lee2, ablauf, pinend, schiff].nonNulls.toList(growable: false);
 
   @override
-  void addBoje(Boje boje) {
-    switch (boje.type) {
-      case BojenTyp.luvTonne:
-        luv = boje as AblaufTonne;
-        break;
-      case BojenTyp.leeTonne:
-        if (lee != null) {
-          lee2 = boje as AblaufTonne;
-        } else {
-          lee = boje as AblaufTonne;
-        }
-        break;
-      case BojenTyp.ablaufTonne:
-        ablauf = boje as AblaufTonne;
-        break;
-      case BojenTyp.pinEnd:
-        pinend = boje as StartZielTonne;
-        break;
-      case BojenTyp.startschiff:
-        schiff = boje as StartZielTonne;
-        break;
-      default:
-        print("Boje nicht verfügbar");
-        return;
+  set _setLee(AblaufTonne boje) {
+    if (lee != null) {
+      lee2 = boje;
+      lee2!.nummer = ablauf == null ? 2 : 3;
+    } else {
+      lee = boje;
+      lee!.nummer = ablauf == null ? 2 : 3;
     }
-    super.direction = _calcDirection();
+  }
+
+  @override
+  set _setAblauf(AblaufTonne boje) {
+    super._setAblauf = boje;
+    lee2?.nummer = 3;
   }
 
   @override
   void removeBoje(Boje boje) {
     switch (boje.type) {
-      case BojenTyp.luvTonne:
-        luv = null;
-        break;
       case BojenTyp.leeTonne:
         if (boje == lee) {
           lee = null;
@@ -164,16 +176,11 @@ class UpAndDownWithGateKurs extends UpAndDownKurs {
         break;
       case BojenTyp.ablaufTonne:
         ablauf = null;
-        break;
-      case BojenTyp.pinEnd:
-        pinend = null;
-        break;
-      case BojenTyp.startschiff:
-        schiff = null;
+        lee?.nummer = 2;
+        lee2?.nummer = 2;
         break;
       default:
-        print("Boje nicht verfügbar");
-        return;
+        super.removeBoje(boje);
     }
   }
 }
