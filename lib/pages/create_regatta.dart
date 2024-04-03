@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:regatta_tracker2/HelperClasses/bojen.dart';
+import 'package:regatta_tracker2/HelperClasses/kurs.dart';
 import 'package:regatta_tracker2/misc/map_drawer.dart';
 import 'package:regatta_tracker2/misc/tile_providers.dart';
 
@@ -16,7 +16,7 @@ class BuildRegattaPage extends StatefulWidget {
 }
 
 class _BuildRegattaPageState extends State<BuildRegattaPage> {
-  List<Boje> bojen = [];
+  Kurs kurs = UpAndDownKurs();
 
   @override
   Widget build(BuildContext context) {
@@ -36,10 +36,10 @@ class _BuildRegattaPageState extends State<BuildRegattaPage> {
           onLongPress: (pos, latlng) => _bottomSheet(context, latlng),
         ),
         children: [
-          // openStreetMapTileLayer,
+          openStreetMapTileLayer,
           // openSeaMapMarkersTileLayer,
-          PolylineLayer(polylines: MapDrawer.linesFromBojen(bojen)),
-          MarkerLayer(markers: MapDrawer.markerFromBojen(bojen)),
+          PolylineLayer(polylines: MapDrawer.linesFromBojen(kurs)),
+          MarkerLayer(markers: MapDrawer.markerFromBojen(kurs)),
         ],
       ),
     );
@@ -59,7 +59,7 @@ class _BuildRegattaPageState extends State<BuildRegattaPage> {
               spacing: 8.0,
               runSpacing: 4.0,
               children: [
-                for (BojenTyp type in BojenTyp.values)
+                for (BojenTyp type in kurs.allowedTypes)
                   _getButton(context, type, latlng)
               ],
             ),
@@ -86,7 +86,7 @@ class _BuildRegattaPageState extends State<BuildRegattaPage> {
 
   void _addBoje(BojenTyp type, LatLng latlng) {
     setState(() {
-      bojen.add(Boje.fromType(type, latlng));
+      kurs.addBoje(Boje.fromType(type, latlng));
       print(latlng);
     });
   }

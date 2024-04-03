@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:regatta_tracker2/HelperClasses/bojen.dart';
+import 'package:regatta_tracker2/HelperClasses/kurs.dart';
 
 class MapDrawer {
   static Marker markerFromBoje(Boje boje) {
@@ -16,59 +17,46 @@ class MapDrawer {
         width: 30, height: 30, point: boje.position, child: boje.icon);
   }
 
-  static List<Marker> markerFromBojen(List<Boje> bojen) {
-    return bojen.map(markerFromBoje).toList(growable: false);
+  static List<Marker> markerFromBojen(Kurs kurs) {
+    return kurs.bojen.map(markerFromBoje).toList(growable: false);
   }
 
-  static List<Polyline> linesFromBojen(List<Boje> bojen) {
+  static List<Polyline> linesFromBojen(Kurs kurs) {
     List<Polyline> lines = [];
-    
-    Polyline? startingLine = MapDrawer.startFinishLineFromBojen(bojen);
-    if (startingLine != null) lines.add(startingLine);
-    Polyline? finishLine = MapDrawer.finishLineFromBojen(bojen);
-    if (finishLine != null) lines.add(finishLine);
+
+    if (kurs.startingLine != null) {
+      lines.add(startFinishLineFromBojen(kurs.startingLine!));
+    }
+    if (!kurs.startEqualFinish && kurs.finishLine != null) {
+      lines.add(finishLineFromBojen(kurs.finishLine!));
+    }
 
     return lines;
   }
 
-  static Polyline? startFinishLineFromBojen(List<Boje> bojen) {
-    List<StartZielTonne> startline = bojen
-        .where((element) =>
-            BojenTyp.startZiel.contains(element.type) &&
-            element.type != BojenTyp.zielTonne)
-        .toList(growable: false)
-        .cast<StartZielTonne>();
-
-    if (startline.length == 2) {
-      var [p1, p2] = startline;
-      if (p1.istZiel && p2.istZiel) {
-        return Polyline(
-            points: [p1.position, p2.position],
-            strokeWidth: 2,
-            color: Colors.white);
-      }
-      return Polyline(points: [p1.position, p2.position], isDotted: true);
+  static Polyline startFinishLineFromBojen(List<StartZielTonne> bojen) {
+    assert(bojen.length == 2);
+    var [p1, p2] = bojen;
+    if (p1.istZiel && p2.istZiel) {
+      return Polyline(
+          points: [p1.position, p2.position],
+          strokeWidth: 2,
+          color: Colors.white);
     }
-    return null;
+    return Polyline(points: [p1.position, p2.position], isDotted: true);
   }
-  
-  static Polyline? finishLineFromBojen(List<Boje> bojen) {
-    List<StartZielTonne> finishLine = bojen
-        .where((element) =>
-            element.type == BojenTyp.zielTonne)
-        .toList(growable: false)
-        .cast<StartZielTonne>();
 
-    if (finishLine.length == 2) {
-      var [p1, p2] = finishLine;
-      if (p1.istZiel && p2.istZiel) {
-        return Polyline(
-            points: [p1.position, p2.position],
-            strokeWidth: 2,
-            color: Colors.red);
-      }
-      return Polyline(points: [p1.position, p2.position], isDotted: true);
+  static Polyline finishLineFromBojen(List<StartZielTonne> bojen) {
+    assert(bojen.length == 2);
+    assert(bojen.every((element) => element.istZiel));
+
+    var [p1, p2] = bojen;
+    if (p1.istZiel && p2.istZiel) {
+      return Polyline(
+          points: [p1.position, p2.position],
+          strokeWidth: 2,
+          color: Colors.red);
     }
-    return null;
+    return Polyline(points: [p1.position, p2.position], isDotted: true);
   }
 }
