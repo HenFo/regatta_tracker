@@ -6,7 +6,7 @@ import 'package:regatta_tracker2/HelperClasses/kurs.dart';
 typedef BojeCallbackFunction = void Function(Boje);
 
 class MapDrawer {
-  static Marker markerFromBoje(Boje boje,
+  static Marker markerFromBoje(Boje boje, Kurs kurs,
       {BojeCallbackFunction? onDoubleTapCallback}) {
     var iconWithGesture = GestureDetector(
       child: boje.icon,
@@ -14,22 +14,31 @@ class MapDrawer {
           onDoubleTapCallback != null ? onDoubleTapCallback(boje) : () => {},
     );
 
+    baseMarker(Widget child, {alignment = Alignment.center, rotate = true}) =>
+        Marker(
+            width: 30,
+            height: 30,
+            point: boje.position,
+            alignment: alignment,
+            rotate: rotate,
+            child: child,
+        );
+
     if (boje.type == BojenTyp.pinEnd) {
-      return Marker(
-          width: 30,
-          height: 30,
-          point: boje.position,
-          child: iconWithGesture,
-          alignment: const Alignment(0, -0.5));
+      return baseMarker(iconWithGesture, alignment: const Alignment(0, -0.5));
     }
-    return Marker(
-        width: 30, height: 30, point: boje.position, child: iconWithGesture);
+    if (boje.type == BojenTyp.startschiff) {
+      var rotatedIcon = Transform.rotate(angle: kurs.courseAngleInRadians, child: iconWithGesture);
+      return baseMarker(rotatedIcon, rotate: false);
+    }
+    return baseMarker(iconWithGesture);
   }
 
-  static List<Marker> markerFromBojen(Kurs kurs,
+  static List<Marker> drawKursMarker(Kurs kurs,
       {BojeCallbackFunction? onDoubleTapCallback}) {
     return kurs.bojen
-        .map((b) => markerFromBoje(b, onDoubleTapCallback: onDoubleTapCallback))
+        .map((b) =>
+            markerFromBoje(b, kurs, onDoubleTapCallback: onDoubleTapCallback))
         .toList(growable: false);
   }
 

@@ -5,11 +5,13 @@ import 'package:regatta_tracker2/HelperClasses/bojen.dart';
 import 'package:regatta_tracker2/HelperClasses/kurs.dart';
 import 'package:regatta_tracker2/misc/map_drawer.dart';
 import 'package:regatta_tracker2/misc/tile_providers.dart';
+// import 'package:regatta_tracker2/misc/permissions.dart';
 
 class BuildRegattaPage extends StatefulWidget {
   const BuildRegattaPage({
     super.key,
   });
+
 
   @override
   State<BuildRegattaPage> createState() => _BuildRegattaPageState();
@@ -19,10 +21,17 @@ class _BuildRegattaPageState extends State<BuildRegattaPage> {
   Kurs kurs = UpAndDownWithGateKurs();
 
   @override
+  void initState() {
+    super.initState();
+    // requestLocationPermission();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: FlutterMap(
         options: MapOptions(
+          // initialCenter: const LatLng(0,0),
           initialCenter: const LatLng(53.509166, 12.668727),
           initialZoom: 14,
           cameraConstraint: CameraConstraint.contain(
@@ -36,10 +45,11 @@ class _BuildRegattaPageState extends State<BuildRegattaPage> {
           onLongPress: (pos, latlng) => _bottomSheet(context, latlng),
         ),
         children: [
-          // openStreetMapTileLayer,
+          openStreetMapTileLayer,
           // openSeaMapMarkersTileLayer,
           PolylineLayer(polylines: MapDrawer.linesFromBojen(kurs)),
-          MarkerLayer(markers: MapDrawer.markerFromBojen(kurs, onDoubleTapCallback: _removeBoje)),
+          MarkerLayer(markers: MapDrawer.drawKursMarker(kurs, onDoubleTapCallback: _removeBoje), rotate: true,),
+          // CurrentLocationLayer(),
         ],
       ),
     );

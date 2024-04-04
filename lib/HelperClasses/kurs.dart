@@ -10,6 +10,8 @@ abstract class Kurs {
   List<Boje> get bojen;
   List<StartZielTonne>? get startingLine;
   List<StartZielTonne>? get finishLine;
+  
+  double get courseAngleInRadians => direction.angleToSigned(Vector2(0,1));
 
   void addBoje(Boje boje);
   void removeBoje(Boje boje);
@@ -94,6 +96,7 @@ class UpAndDownKurs extends Kurs {
             schiff!.position, pinend!.position, lee!.position);
         return Vector2(-dir.x, -dir.y);
       }
+      return VectorHelper.getOrthogonalToPoints(schiff!.position, pinend!.position);
     }
     return Vector2(0, 1);
   }
