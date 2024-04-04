@@ -40,6 +40,9 @@ dependencies:
   latlong2: ^0.9.1
   vector_math: ^2.1.4
   flutter_svg: ^2.0.10+1
+  flutter_map_location_marker: ^8.0.8
+  geolocator: ^11.0.0
+  permission_handler: ^11.3.1
   proj4dart: ^2.1.0
 
 dev_dependencies:
