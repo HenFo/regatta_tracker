@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:latlong2/latlong.dart';
 
 abstract class Boje {
@@ -56,6 +55,11 @@ abstract class Boje {
 class AblaufTonne extends Boje {
   int nummer;
   bool linksrundung;
+
+  static const Image _icon = Image(
+    image: AssetImage("assets/images/ablauf.png"),
+  );
+
   AblaufTonne(
       {required super.type,
       required super.position,
@@ -75,7 +79,7 @@ class AblaufTonne extends Boje {
 
   Widget _iconWithNummer(Widget icon) {
     return Stack(
-      alignment: const AlignmentDirectional(0,0.75),
+      alignment: const AlignmentDirectional(0, 0.75),
       children: [
         icon,
         Text(nummer.toString()),
@@ -84,30 +88,25 @@ class AblaufTonne extends Boje {
   }
 
   static Widget baseIcon(BojenTyp type) {
-    switch (type) {
-      case BojenTyp.ablaufTonne:
-        return SvgPicture.asset(
-          "assets/SVGs/ablauf.svg",
-          semanticsLabel: "Ablauftonne",
-        );
-      case BojenTyp.luvTonne:
-        return SvgPicture.asset(
-          "assets/SVGs/ablauf.svg",
-          semanticsLabel: "Luv Tonne",
-        );
-      case BojenTyp.leeTonne:
-        return SvgPicture.asset(
-          "assets/SVGs/ablauf.svg",
-          semanticsLabel: "Lee Tonne",
-        );
-      default:
-        throw Exception("$type not allowed in this class");
-    }
+    return _icon as Widget;
   }
 }
 
 class StartZielTonne extends Boje {
   bool istZiel;
+
+  static const _startschiff = Image(
+    image: AssetImage("assets/images/startschiff.png"),
+  );
+
+  static const _pinEnd = Image(
+    image: AssetImage("assets/images/pin-end.png"),
+  );
+
+  static const _ziel = Image(
+    image: AssetImage("assets/images/goal.png"),
+  );
+
   StartZielTonne(
       {required super.type, required super.position, this.istZiel = true});
 
@@ -124,20 +123,11 @@ class StartZielTonne extends Boje {
   static Widget baseIcon(BojenTyp type) {
     switch (type) {
       case BojenTyp.startschiff:
-        return SvgPicture.asset(
-          "assets/SVGs/startschiff.svg",
-          semanticsLabel: "Startschiff",
-        );
+        return _startschiff as Widget;
       case BojenTyp.pinEnd:
-        return SvgPicture.asset(
-          "assets/SVGs/pin-end.svg",
-          semanticsLabel: "Pin End",
-        );
+        return _pinEnd as Widget;
       case BojenTyp.zielTonne:
-        return SvgPicture.asset(
-          "assets/SVGs/goal.svg",
-          semanticsLabel: "Zieltonne",
-        );
+        return _ziel as Widget;
       default:
         throw Exception("$type not allowed in this class");
     }
