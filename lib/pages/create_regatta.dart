@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_animations/flutter_map_animations.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:regatta_tracker2/HelperClasses/bojen.dart';
 import 'package:regatta_tracker2/HelperClasses/kurs.dart';
 import 'package:regatta_tracker2/misc/map_drawer.dart';
 import 'package:regatta_tracker2/misc/tile_providers.dart';
-// import 'package:regatta_tracker2/misc/permissions.dart';
+import 'package:regatta_tracker2/widgets/map_widgets.dart';
 
 class BuildRegattaPage extends StatefulWidget {
   const BuildRegattaPage({
@@ -18,7 +19,9 @@ class BuildRegattaPage extends StatefulWidget {
 }
 
 class _BuildRegattaPageState extends State<BuildRegattaPage> {
-  Kurs kurs = UpAndDownWithGateKurs();
+  final MapController _mapController = MapController();
+
+  Kurs kurs = UpAndDownKurs();
 
   @override
   void initState() {
@@ -27,35 +30,43 @@ class _BuildRegattaPageState extends State<BuildRegattaPage> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FlutterMap(
-        options: MapOptions(
-          // initialCenter: const LatLng(0,0),
-          initialCenter: const LatLng(53.509166, 12.668727),
-          initialZoom: 14,
-          cameraConstraint: CameraConstraint.contain(
-            bounds: LatLngBounds(
-              const LatLng(-90, -180),
-              const LatLng(90, 180),
+      body: Stack(children: [
+        FlutterMap(
+          mapController: _mapController,
+          options: MapOptions(
+            initialCenter: const LatLng(53.509166, 12.668727),
+            initialZoom: 14,
+            cameraConstraint: CameraConstraint.contain(
+              bounds: LatLngBounds(
+                const LatLng(-90, -180),
+                const LatLng(90, 180),
+              ),
             ),
+            interactionOptions: const InteractionOptions(
+                rotationThreshold: 10, enableMultiFingerGestureRace: true),
+            onLongPress: (pos, latlng) => _bottomSheet(context, latlng),
           ),
-          interactionOptions: const InteractionOptions(
-              rotationThreshold: 10, enableMultiFingerGestureRace: true),
-          onLongPress: (pos, latlng) => _bottomSheet(context, latlng),
+          children: [
+            openStreetMapTileLayer,
+            // openSeaMapMarkersTileLayer,
+            PolylineLayer(polylines: MapDrawer.linesFromBojen(kurs)),
+            MarkerLayer(
+              markers: MapDrawer.drawKursMarker(kurs,
+                  onDoubleTapCallback: _removeBoje),
+              rotate: true,
+            ),
+            // CurrentLocationLayer(),
+          ],
         ),
-        children: [
-          openStreetMapTileLayer,
-          // openSeaMapMarkersTileLayer,
-          PolylineLayer(polylines: MapDrawer.linesFromBojen(kurs)),
-          MarkerLayer(
-            markers: MapDrawer.drawKursMarker(kurs,
-                onDoubleTapCallback: _removeBoje),
-            rotate: true,
-          ),
-          // CurrentLocationLayer(),
-        ],
-      ),
+        MapControllButtons(mapController: _mapController, kurs: kurs)
+      ]),
       floatingActionButton: ExpandableFab(
         // pos: ExpandableFabPos.right,
         type: ExpandableFabType.fan,
@@ -69,37 +80,68 @@ class _BuildRegattaPageState extends State<BuildRegattaPage> {
         ],
       ),
       floatingActionButtonLocation: ExpandableFab.location,
-      bottomNavigationBar: _bottomAppBar(),
+      bottomNavigationBar: _bottomAppBar(context),
     );
   }
 
-  BottomAppBar _bottomAppBar() {
+  BottomAppBar _bottomAppBar(BuildContext context) {
     return BottomAppBar(
       padding: EdgeInsets.zero,
       child: Row(
         children: [
           Expanded(
-            child: _saveCancleButton(save: false),
+            child: ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red.shade400,
+                  alignment: Alignment.center,
+                  minimumSize: Size.infinite,
+                  elevation: 0,
+                  shape: const BeveledRectangleBorder(),
+                  foregroundColor: Colors.white),
+              child: const Text("Abbrechen"),
+            ),
           ),
-          Expanded(flex: 2, child: _saveCancleButton(save: true)),
+          Expanded(
+            flex: 2,
+            child: ElevatedButton(
+              onPressed: () => _onSaveButtonPressed(context),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green.shade400,
+                  alignment: Alignment.center,
+                  minimumSize: Size.infinite,
+                  elevation: 0,
+                  shape: const BeveledRectangleBorder(),
+                  foregroundColor: Colors.white),
+              child: const Text("Erstellen"),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  ElevatedButton _saveCancleButton({bool save = true}) {
-    var bgColor = save ? Colors.green.shade400 : Colors.red.shade400;
-    var text = save ? "Erstellen" : "Abbrechen";
-    return ElevatedButton(
-      onPressed: () => {},
-      style: ElevatedButton.styleFrom(
-          backgroundColor: bgColor,
-          alignment: Alignment.center,
-          minimumSize: Size.infinite,
-          elevation: 0,
-          shape: const BeveledRectangleBorder(),
-          foregroundColor: Colors.white),
-      child: Text(text),
+  Future<void> _onSaveButtonPressed(BuildContext context) async {
+    if (kurs.compelte) {
+      return;
+    } else {
+      _showCourseIncopleteDialog(context);
+    }
+  }
+
+  Future<dynamic> _showCourseIncopleteDialog(BuildContext context) async {
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Error'),
+        content: const Text("Der Kurs ist noch nicht vollständig"),
+        actions: [
+          TextButton(
+            child: const Text('OK'),
+            onPressed: () => Navigator.pop(context),
+          )
+        ],
+      ),
     );
   }
 
@@ -109,7 +151,7 @@ class _BuildRegattaPageState extends State<BuildRegattaPage> {
       useSafeArea: true,
       isScrollControlled: true,
       builder: (context) {
-        return Container(
+        return SizedBox(
           width: double.infinity,
           child: Padding(
             padding: const EdgeInsets.all(20),
