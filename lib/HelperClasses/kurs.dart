@@ -1,8 +1,9 @@
+import 'package:flutter/widgets.dart';
 import 'package:regatta_tracker2/HelperClasses/bojen.dart';
 import 'package:regatta_tracker2/misc/vector_functions.dart';
 import 'package:vector_math/vector_math.dart';
 
-abstract class Kurs {
+sealed class Kurs {
   Kurs();
 
   Vector2 direction = Vector2(0, 1);
@@ -13,6 +14,16 @@ abstract class Kurs {
   List<StartZielTonne>? get startingLine;
   List<StartZielTonne>? get finishLine;
   bool get compelte;
+
+  static Image getKursImage<T extends Kurs>() {
+    return switch (T) {
+      const (UpAndDownWithGateKurs) =>
+        Image.asset("assets/kurse/images/UpDownGate.png"),
+      const (UpAndDownKurs) => 
+        Image.asset("assets/kurse/images/UpDown.png"),
+      _ => throw UnimplementedError(),
+    };
+  }
 
   double get courseAngleInRadians => direction.angleToSigned(Vector2(0, 1));
 
@@ -198,6 +209,9 @@ class UpAndDownKurs extends Kurs {
     }
     throw Exception("Kurs is not complete");
   }
+
+  @override
+  Image get kursImage => Image.asset("assets/kurse/images/UpDown.png");
 }
 
 class UpAndDownWithGateKurs extends UpAndDownKurs {
@@ -290,4 +304,7 @@ class UpAndDownWithGateKurs extends UpAndDownKurs {
         super.removeBoje(boje);
     }
   }
+
+  @override
+  Image get kursImage => Image.asset("assets/kurse/images/UpDownGate.png");
 }

@@ -57,7 +57,7 @@ class AblaufTonne extends Boje {
   bool linksrundung;
 
   static const Image _icon = Image(
-    image: AssetImage("assets/images/ablauf.png"),
+    image: AssetImage("assets/bojen/images/ablauf.png"),
   );
 
   AblaufTonne(
@@ -96,15 +96,15 @@ class StartZielTonne extends Boje {
   bool istZiel;
 
   static const _startschiff = Image(
-    image: AssetImage("assets/images/startschiff.png"),
+    image: AssetImage("assets/bojen/images/startschiff.png"),
   );
 
   static const _pinEnd = Image(
-    image: AssetImage("assets/images/pin-end.png"),
+    image: AssetImage("assets/bojen/images/pin-end.png"),
   );
 
   static const _ziel = Image(
-    image: AssetImage("assets/images/goal.png"),
+    image: AssetImage("assets/bojen/images/goal.png"),
   );
 
   StartZielTonne(
