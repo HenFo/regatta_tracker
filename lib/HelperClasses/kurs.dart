@@ -3,18 +3,33 @@ import 'package:regatta_tracker2/misc/vector_functions.dart';
 import 'package:vector_math/vector_math.dart';
 
 abstract class Kurs {
+  Kurs();
+
   Vector2 direction = Vector2(0, 1);
 
-  bool get startEqualFinish;
+  abstract final bool startEqualFinish;
   List<BojenTyp> get allowedTypes;
   List<Boje> get bojen;
   List<StartZielTonne>? get startingLine;
   List<StartZielTonne>? get finishLine;
-  
-  double get courseAngleInRadians => direction.angleToSigned(Vector2(0,1));
+  bool get compelte;
+
+  double get courseAngleInRadians => direction.angleToSigned(Vector2(0, 1));
 
   void addBoje(Boje boje);
   void removeBoje(Boje boje);
+  Map<String, dynamic> toJson();
+
+  factory Kurs.fromJson(Map<String, dynamic> map) {
+    if (map case {"type": String type}) {
+      return switch (type) {
+        "UpAndDownKurs" => UpAndDownKurs.fromJson(map),
+        "UpAndDownWithGateKurs" => UpAndDownWithGateKurs.fromJson(map),
+        _ => throw Exception("invalid json map")
+      };
+    }
+    throw Exception("Kurs type missing");
+  }
 }
 
 class UpAndDownKurs extends Kurs {
@@ -26,9 +41,31 @@ class UpAndDownKurs extends Kurs {
   StartZielTonne? schiff;
 
   @override
-  bool get startEqualFinish => true;
+  final bool startEqualFinish = true;
 
-  UpAndDownKurs();
+  UpAndDownKurs({this.luv, this.lee, this.ablauf, this.pinend, this.schiff}) {
+    _calcDirection();
+  }
+
+  factory UpAndDownKurs.fromJson(Map<String, dynamic> map) {
+    if (map
+        case {
+          "type": "UpAndDownKurs",
+          "luv": Map<String, dynamic> luv,
+          "lee": Map<String, dynamic> lee,
+          "ablauf": Map<String, dynamic>? ablauf,
+          "pinend": Map<String, dynamic> pinend,
+          "schiff": Map<String, dynamic> schiff
+        }) {
+      return UpAndDownKurs(
+          luv: AblaufTonne.fromJson(luv),
+          lee: AblaufTonne.fromJson(lee),
+          ablauf: ablauf == null ? null : AblaufTonne.fromJson(ablauf),
+          schiff: StartZielTonne.fromJson(schiff),
+          pinend: StartZielTonne.fromJson(pinend));
+    }
+    throw Exception("invalid json map");
+  }
 
   set _setLuv(AblaufTonne boje) {
     luv = boje;
@@ -96,7 +133,8 @@ class UpAndDownKurs extends Kurs {
             schiff!.position, pinend!.position, lee!.position);
         return Vector2(-dir.x, -dir.y);
       }
-      return VectorHelper.getOrthogonalToPoints(schiff!.position, pinend!.position);
+      return VectorHelper.getOrthogonalToPoints(
+          schiff!.position, pinend!.position);
     }
     return Vector2(0, 1);
   }
@@ -141,14 +179,80 @@ class UpAndDownKurs extends Kurs {
         return;
     }
   }
+
+  @override
+  bool get compelte =>
+      [luv, lee, pinend, schiff].every((element) => element != null);
+
+  @override
+  Map<String, dynamic> toJson() {
+    if (compelte) {
+      return {
+        "type": "UpAndDownKurs",
+        "luv": luv!.toJson(),
+        "lee": lee!.toJson(),
+        "ablauf": ablauf!.toJson(),
+        "pinend": pinend!.toJson(),
+        "schiff": schiff!.toJson()
+      };
+    }
+    throw Exception("Kurs is not complete");
+  }
 }
 
 class UpAndDownWithGateKurs extends UpAndDownKurs {
   AblaufTonne? lee2;
 
+  UpAndDownWithGateKurs(
+      {super.luv,
+      super.lee,
+      this.lee2,
+      super.ablauf,
+      super.pinend,
+      super.schiff}) {
+    _calcDirection();
+  }
+
+  factory UpAndDownWithGateKurs.fromJson(Map<String, dynamic> map) {
+    if (map
+        case {
+          "type": "UpAndDownWithGateKurs",
+          "luv": Map<String, dynamic> luv,
+          "lee": Map<String, dynamic> lee,
+          "lee2": Map<String, dynamic> lee2,
+          "ablauf": Map<String, dynamic>? ablauf,
+          "pinend": Map<String, dynamic> pinend,
+          "schiff": Map<String, dynamic> schiff
+        }) {
+      return UpAndDownWithGateKurs(
+          luv: AblaufTonne.fromJson(luv),
+          lee: AblaufTonne.fromJson(lee),
+          lee2: AblaufTonne.fromJson(lee2),
+          ablauf: ablauf == null ? null : AblaufTonne.fromJson(ablauf),
+          schiff: StartZielTonne.fromJson(schiff),
+          pinend: StartZielTonne.fromJson(pinend));
+    }
+    throw Exception("invalid json map");
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    if (compelte) {
+      Map<String, dynamic> json = super.toJson();
+      json["type"] = "UpAndDownWithGateKurs";
+      json["lee2"] = lee2!.toJson();
+      return json;
+    }
+    throw Exception("Kurs is not complete");
+  }
+
   @override
   List<Boje> get bojen =>
       [luv, lee, lee2, ablauf, pinend, schiff].nonNulls.toList(growable: false);
+
+  @override
+  bool get compelte =>
+      [luv, lee, lee2, pinend, schiff].every((element) => element != null);
 
   @override
   set _setLee(AblaufTonne boje) {
