@@ -2,13 +2,16 @@ import 'package:latlong2/latlong.dart';
 
 final class Regatta {
   final String name;
-  final DateTime startDatum;
-  final DateTime endDatum;
-  final String standort;
   final Map<String, bool> teilnehmer;
+  late DateTime startDatum;
+  late DateTime endDatum;
+  String? standort;
 
-  Regatta(this.name, this.startDatum, this.endDatum, this.standort,
-      this.teilnehmer);
+  Regatta(this.name,
+      {DateTime? startDatum, DateTime? endDatum, this.standort = "", this.teilnehmer = const {}}) {
+    this.startDatum = startDatum ?? DateTime.now();
+    this.endDatum = endDatum ?? DateTime.now();
+  }
 
   Map<String, dynamic> toJson() {
     return {

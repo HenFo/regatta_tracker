@@ -10,8 +10,11 @@ import 'package:regatta_tracker2/misc/tile_providers.dart';
 import 'package:regatta_tracker2/widgets/map_widgets.dart';
 
 class BuildRegattaPage extends StatefulWidget {
+  final Kurs kurs;
+
   const BuildRegattaPage({
     super.key,
+    required this.kurs,
   });
 
   @override
@@ -20,8 +23,6 @@ class BuildRegattaPage extends StatefulWidget {
 
 class _BuildRegattaPageState extends State<BuildRegattaPage> {
   final MapController _mapController = MapController();
-
-  Kurs kurs = UpAndDownKurs();
 
   @override
   void initState() {
@@ -56,16 +57,16 @@ class _BuildRegattaPageState extends State<BuildRegattaPage> {
           children: [
             openStreetMapTileLayer,
             // openSeaMapMarkersTileLayer,
-            PolylineLayer(polylines: MapDrawer.linesFromBojen(kurs)),
+            PolylineLayer(polylines: MapDrawer.linesFromBojen(widget.kurs)),
             MarkerLayer(
-              markers: MapDrawer.drawKursMarker(kurs,
+              markers: MapDrawer.drawKursMarker(widget.kurs,
                   onDoubleTapCallback: _removeBoje),
               rotate: true,
             ),
             // CurrentLocationLayer(),
           ],
         ),
-        MapControllButtons(mapController: _mapController, kurs: kurs)
+        MapControllButtons(mapController: _mapController, kurs: widget.kurs)
       ]),
       floatingActionButton: ExpandableFab(
         // pos: ExpandableFabPos.right,
@@ -76,7 +77,7 @@ class _BuildRegattaPageState extends State<BuildRegattaPage> {
         closeButtonBuilder: DefaultFloatingActionButtonBuilder(
             child: const Icon(Icons.close), shape: const CircleBorder()),
         children: [
-          for (var type in kurs.allowedTypes) _getAtPositionButton(type)
+          for (var type in widget.kurs.allowedTypes) _getAtPositionButton(type)
         ],
       ),
       floatingActionButtonLocation: ExpandableFab.location,
@@ -122,8 +123,8 @@ class _BuildRegattaPageState extends State<BuildRegattaPage> {
   }
 
   Future<void> _onSaveButtonPressed(BuildContext context) async {
-    if (kurs.compelte) {
-      return;
+    if (widget.kurs.compelte) {
+      Navigator.pop(context, "Test");
     } else {
       _showCourseIncopleteDialog(context);
     }
@@ -159,7 +160,7 @@ class _BuildRegattaPageState extends State<BuildRegattaPage> {
               // spacing: 8.0,
               runSpacing: 4.0,
               children: [
-                for (BojenTyp type in kurs.allowedTypes)
+                for (BojenTyp type in widget.kurs.allowedTypes)
                   _getDrawerButton(context, type, latlng)
               ],
             ),
@@ -210,14 +211,14 @@ class _BuildRegattaPageState extends State<BuildRegattaPage> {
 
   void _addBoje(BojenTyp type, LatLng latlng) {
     setState(() {
-      kurs.addBoje(Boje.fromType(type, latlng));
+      widget.kurs.addBoje(Boje.fromType(type, latlng));
       print(latlng);
     });
   }
 
   void _removeBoje(Boje boje) {
     setState(() {
-      kurs.removeBoje(boje);
+      widget.kurs.removeBoje(boje);
     });
   }
 }

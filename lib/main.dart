@@ -3,7 +3,7 @@ import 'package:regatta_tracker2/HelperClasses/kurs.dart';
 import 'package:regatta_tracker2/pages/create_regatta.dart';
 import 'package:regatta_tracker2/pages/landing_page.dart';
 
-import 'misc/type_definitions.dart';
+import 'misc/mock_database.dart';
 import 'pages/select_course.dart';
 
 void main() {
@@ -13,7 +13,7 @@ void main() {
 class MyApp extends StatelessWidget {
   MyApp({super.key});
 
-  final Map<String, Map<String, dynamic>> database = {
+  final Database database = Database.fromJson({
     "regatten": <String, RegattaDbEntry>{
       "Training": {
         "name": "Training",
@@ -48,7 +48,7 @@ class MyApp extends StatelessWidget {
     "kurse": <String, KursDbEntry>{},
     "user": <String, UserDbEntry>{},
     "tracks": <String, TrackDbEntry>{},
-  };
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -58,12 +58,9 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        // home: LandingPage(
-        //     meineRegatten: database["regatten"] as Map<String, RegattaDbEntry>)
+        home: LandingPage(database:database)
         // home: const BuildRegattaPage()
-        home: const SelectCourseTypePage()
+        // home: const SelectCourseTypePage()
         );
   }
 }
-
-

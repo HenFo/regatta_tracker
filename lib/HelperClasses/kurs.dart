@@ -41,6 +41,14 @@ sealed class Kurs {
     }
     throw Exception("Kurs type missing");
   }
+
+  factory Kurs.create(Type t) {
+    return switch (t) {
+      const (UpAndDownWithGateKurs) => UpAndDownWithGateKurs(),
+      const (UpAndDownKurs) => UpAndDownKurs(),
+      _ => throw Exception("Invalid type")
+    };
+  }
 }
 
 class UpAndDownKurs extends Kurs {

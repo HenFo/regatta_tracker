@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:regatta_tracker2/HelperClasses/kurs.dart';
 import 'package:regatta_tracker2/HelperClasses/regatta.dart';
-import 'package:regatta_tracker2/misc/type_definitions.dart';
+import 'package:regatta_tracker2/misc/mock_database.dart';
+import 'package:regatta_tracker2/pages/select_course.dart';
 
 class LandingPage extends StatelessWidget {
   const LandingPage({
     super.key,
-    required this.meineRegatten,
+    required this.database,
   });
 
-  final Map<String, RegattaDbEntry> meineRegatten;
+  final Database database;
 
   @override
   Widget build(BuildContext context) {
@@ -16,11 +18,20 @@ class LandingPage extends StatelessWidget {
         body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: GridView.count(
-              crossAxisCount: 2, children: _getSaveCards(meineRegatten)),
+              crossAxisCount: 2, children: _getSaveCards(database.regatten)),
         ),
-        floatingActionButton: const FloatingActionButton(
-          onPressed: null,
-          child: Icon(Icons.add),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () async {
+            var result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const SelectCourseTypePage()));
+            var (name as String, k as Kurs) = result;
+            Regatta r = Regatta(name);
+            print(name);
+            print(k.compelte);
+          },
+          child: const Icon(Icons.add),
         ));
   }
 
@@ -49,7 +60,7 @@ class SavedCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(regatta.name),
-                Text(regatta.standort),
+                Text(regatta.standort ?? ""),
                 Text(
                     "${regatta.startDatum.day}.${regatta.startDatum.month}.${regatta.startDatum.year} - ${regatta.endDatum.day}.${regatta.endDatum.month}.${regatta.endDatum.year}"),
               ],
