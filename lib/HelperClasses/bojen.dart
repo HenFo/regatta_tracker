@@ -41,15 +41,7 @@ abstract class Boje {
     throw Exception("Unknown type $type");
   }
 
-  Map<String, dynamic> toJson() {
-    if (BojenTyp.startZiel.contains(type)) {
-      return (this as StartZielTonne).toJson();
-    }
-    if (BojenTyp.ablauf.contains(type)) {
-      return (this as AblaufTonne).toJson();
-    }
-    throw Exception("Unknown type $type");
-  }
+  Map<String, dynamic> toJson();
 }
 
 class AblaufTonne extends Boje {
@@ -73,6 +65,19 @@ class AblaufTonne extends Boje {
           nummer: json['nummer'],
           linksrundung: json['linksrundung'],
         );
+  
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      'type': type.index,
+      'position': {
+        'lat': position.latitude.toString(),
+        'lng': position.longitude.toString()
+      },
+      'nummer': nummer,
+      'linksrundung': linksrundung
+    };
+  }
 
   @override
   Widget get icon => _iconWithNummer(AblaufTonne.baseIcon(type));
@@ -116,6 +121,18 @@ class StartZielTonne extends Boje {
           position: LatLng(json['position']['lat'], json['position']['lng']),
           istZiel: json['istZiel'],
         );
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      'type': type.index.toString(),
+      'position': {
+        'lat': position.latitude.toString(),
+        'lng': position.longitude.toString()
+      },
+      'istZiel': istZiel.toString()
+    };
+  }
 
   @override
   Widget get icon => StartZielTonne.baseIcon(type);

@@ -2,13 +2,21 @@ import 'package:latlong2/latlong.dart';
 
 final class Regatta {
   final String name;
+  final String standort;
   final Map<String, bool> teilnehmer;
+  final String owner;
   late DateTime startDatum;
   late DateTime endDatum;
-  String? standort;
 
-  Regatta(this.name,
-      {DateTime? startDatum, DateTime? endDatum, this.standort = "", this.teilnehmer = const {}}) {
+  String get id =>
+      (name + startDatum.toString() + endDatum.toString() + standort)
+          .replaceAll(" ", "");
+
+  Regatta(this.name, this.owner,
+      {DateTime? startDatum,
+      DateTime? endDatum,
+      this.standort = "",
+      this.teilnehmer = const {}}) {
     this.startDatum = startDatum ?? DateTime.now();
     this.endDatum = endDatum ?? DateTime.now();
   }
@@ -16,6 +24,7 @@ final class Regatta {
   Map<String, dynamic> toJson() {
     return {
       "name": name,
+      "owner": owner,
       "startDatum": startDatum.toIso8601String(),
       "endDatum": endDatum.toIso8601String(),
       "standort": standort,
@@ -24,11 +33,12 @@ final class Regatta {
   }
 
   Regatta.fromJson(Map<String, dynamic> map)
-      : name = map["name"],
+      : owner = map["owner"] as String,
+        name = map["name"] as String,
         startDatum = DateTime.parse(map["startDatum"]),
         endDatum = DateTime.parse(map["endDatum"]),
-        standort = map["standort"],
-        teilnehmer = map["teilnehmer"];
+        standort = map["standort"] as String,
+        teilnehmer = map["teilnehmer"] as Map<String, bool>;
 }
 
 final class Runde {

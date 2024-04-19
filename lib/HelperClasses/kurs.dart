@@ -14,6 +14,7 @@ sealed class Kurs {
   List<StartZielTonne>? get startingLine;
   List<StartZielTonne>? get finishLine;
   bool get compelte;
+  Image get kursImage;
 
   static Image getKursImage<T extends Kurs>() {
     return switch (T) {
@@ -63,7 +64,7 @@ class UpAndDownKurs extends Kurs {
   final bool startEqualFinish = true;
 
   UpAndDownKurs({this.luv, this.lee, this.ablauf, this.pinend, this.schiff}) {
-    _calcDirection();
+    super.direction = _calcDirection();
   }
 
   factory UpAndDownKurs.fromJson(Map<String, dynamic> map) {
@@ -210,7 +211,7 @@ class UpAndDownKurs extends Kurs {
         "type": "UpAndDownKurs",
         "luv": luv!.toJson(),
         "lee": lee!.toJson(),
-        "ablauf": ablauf!.toJson(),
+        "ablauf": ablauf?.toJson(),
         "pinend": pinend!.toJson(),
         "schiff": schiff!.toJson()
       };
@@ -232,7 +233,7 @@ class UpAndDownWithGateKurs extends UpAndDownKurs {
       super.ablauf,
       super.pinend,
       super.schiff}) {
-    _calcDirection();
+    super.direction = _calcDirection();
   }
 
   factory UpAndDownWithGateKurs.fromJson(Map<String, dynamic> map) {

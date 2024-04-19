@@ -106,7 +106,9 @@ class _BuildRegattaPageState extends State<BuildRegattaPage> {
           Expanded(
             flex: 2,
             child: ElevatedButton(
-              onPressed: () => _onSaveButtonPressed(context),
+              onPressed: widget.kurs.compelte
+                  ? () => _onSaveButtonPressed(context)
+                  : null,
               style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green.shade400,
                   alignment: Alignment.center,
@@ -123,28 +125,28 @@ class _BuildRegattaPageState extends State<BuildRegattaPage> {
   }
 
   Future<void> _onSaveButtonPressed(BuildContext context) async {
-    if (widget.kurs.compelte) {
-      Navigator.pop(context, "Test");
-    } else {
-      _showCourseIncopleteDialog(context);
-    }
+    // if (widget.kurs.compelte) {
+    Navigator.pop(context, "Test");
+    // } else {
+    //   _showCourseIncopleteDialog(context);
+    // }
   }
 
-  Future<dynamic> _showCourseIncopleteDialog(BuildContext context) async {
-    await showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Error'),
-        content: const Text("Der Kurs ist noch nicht vollständig"),
-        actions: [
-          TextButton(
-            child: const Text('OK'),
-            onPressed: () => Navigator.pop(context),
-          )
-        ],
-      ),
-    );
-  }
+  // Future<dynamic> _showCourseIncopleteDialog(BuildContext context) async {
+  //   await showDialog(
+  //     context: context,
+  //     builder: (_) => AlertDialog(
+  //       title: const Text('Error'),
+  //       content: const Text("Der Kurs ist noch nicht vollständig"),
+  //       actions: [
+  //         TextButton(
+  //           child: const Text('OK'),
+  //           onPressed: () => Navigator.pop(context),
+  //         )
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Future<dynamic> _bottomSheet(BuildContext context, LatLng latlng) {
     return showModalBottomSheet(

@@ -31,7 +31,7 @@ class KursCard<T extends Kurs> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell(
       onTap: () async {
         final Kurs k = Kurs.create(T);
         final Completer completer = Completer();

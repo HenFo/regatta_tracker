@@ -14,7 +14,7 @@ class MapControllButtons extends StatefulWidget {
   State<MapControllButtons> createState() => _MapControllButtonsState();
 }
 
-class _MapControllButtonsState extends State<MapControllButtons> {
+class _MapControllButtonsState extends State<MapControllButtons> with MapControllHelper {
   bool locationOn = false;
 
   @override
@@ -32,12 +32,12 @@ class _MapControllButtonsState extends State<MapControllButtons> {
                   return Transform.rotate(
                       angle: snapshot.data?.camera.rotationRad ?? 0,
                       child: IconButton.filled(
-                        onPressed: _toggleOrientation,
+                        onPressed: () => toggleOrientation(widget.mapController, widget.kurs),
                         icon: const Icon(Icons.north),
                       ));
                 }),
             IconButton.filled(
-              onPressed: _fitToCourse,
+              onPressed: () => fitToCourse(widget.mapController, widget.kurs),
               icon: const Icon(Icons.fullscreen),
             ),
             IconButton.filled(
@@ -66,25 +66,30 @@ class _MapControllButtonsState extends State<MapControllButtons> {
       ),
     );
   }
+}
 
-  void _fitToCourse() {
-    var positions = widget.kurs.bojen.map((e) => e.position).toList();
+mixin MapControllHelper {
+  /// Fits Camera to contain a course and rotates according to the course direction
+  void fitToCourse(MapController mapController, Kurs kurs) {
+    var positions = kurs.bojen.map((e) => e.position).toList();
     var camFit = CameraFit.coordinates(
         coordinates: positions, padding: const EdgeInsets.all(50));
-    _rotateToCourseDirection();
-    widget.mapController.fitCamera(camFit);
+    mapController.fitCamera(camFit);
+    rotateToCourseDirection(mapController, kurs);
+    mapController.fitCamera(camFit);
   }
 
-  void _toggleOrientation() {
-    if (widget.mapController.camera.rotation == 0) {
-      _rotateToCourseDirection();
+  void toggleOrientation(MapController mapController, Kurs kurs) {
+    if (mapController.camera.rotation == 0) {
+      rotateToCourseDirection(mapController, kurs);
     } else {
-      widget.mapController.rotate(0);
+      mapController.rotate(0);
     }
   }
 
-  void _rotateToCourseDirection() {
-    var courseAngle = widget.kurs.courseAngleInRadians;
-    widget.mapController.rotate(360 - courseAngle * 180 / pi);
+  /// rotates the camera in the direction of the course
+  void rotateToCourseDirection(MapController mapController, Kurs kurs) {
+    var courseAngle = kurs.courseAngleInRadians;
+    mapController.rotate(360 - courseAngle * 180 / pi);
   }
 }
