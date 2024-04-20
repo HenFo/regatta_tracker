@@ -6,6 +6,7 @@ import 'package:regatta_tracker2/pages/launch_regatta.dart';
 import 'package:regatta_tracker2/pages/select_course.dart';
 
 typedef CardTapedCallback = void Function(String regattaId);
+
 class LandingPage extends StatefulWidget {
   const LandingPage({
     super.key,
@@ -26,7 +27,8 @@ class _LandingPageState extends State<LandingPage> {
           padding: const EdgeInsets.all(8.0),
           child: GridView.count(
               crossAxisCount: 2,
-              children: _buildSaveCardsFromRegattaEntries(widget.database.regatten)),
+              children:
+                  _buildSaveCardsFromRegattaEntries(widget.database.regatten)),
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
@@ -50,16 +52,22 @@ class _LandingPageState extends State<LandingPage> {
     widget.database.kurse[r.id] = {"0": k.toJson()};
   }
 
-  List<SavedCard> _buildSaveCardsFromRegattaEntries(RegattaDbEntry regattenAsJson) {
+  List<SavedCard> _buildSaveCardsFromRegattaEntries(
+      RegattaDbEntry regattenAsJson) {
     return regattenAsJson.values
         .map((regattaJson) => Regatta.fromJson(regattaJson))
-        .map((regatta) => SavedCard(regatta: regatta, callback: _onCardPressedCallback))
+        .map((regatta) =>
+            SavedCard(regatta: regatta, callback: _onCardPressedCallback))
         .toList(growable: false)
       ..sort((a, b) => -a.regatta.startDatum.compareTo(b.regatta.startDatum));
   }
 
   void _onCardPressedCallback(String regattaId) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => RegattaViewer(regattaID: regattaId, db:widget.database)));
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                RegattaPage(regattaID: regattaId, database: widget.database)));
   }
 }
 
