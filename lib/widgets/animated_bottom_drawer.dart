@@ -119,8 +119,6 @@ class Grabber extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
-
     return GestureDetector(
       onVerticalDragUpdate: onVerticalDragUpdate,
       onTap: onTapCallback,
@@ -145,7 +143,7 @@ class Grabber extends StatelessWidget {
         Align(
           alignment: Alignment.topCenter,
           child: Container(
-            margin: const EdgeInsets.symmetric(vertical: 8.0),
+            margin: const EdgeInsets.only(top: 10),
             width: 32.0,
             height: 4.0,
             decoration: BoxDecoration(
