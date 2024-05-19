@@ -7,10 +7,8 @@ final class Regatta {
   final String owner;
   late DateTime startDatum;
   late DateTime endDatum;
-
-  String get id =>
-      (name + startDatum.toString() + endDatum.toString() + standort)
-          .replaceAll(" ", "");
+  late String id;
+  
 
   Regatta(this.name, this.owner,
       {DateTime? startDatum,
@@ -19,10 +17,12 @@ final class Regatta {
       this.teilnehmer = const {}}) {
     this.startDatum = startDatum ?? DateTime.now();
     this.endDatum = endDatum ?? DateTime.now();
+    this.id = "";
   }
 
   Map<String, dynamic> toJson() {
     return {
+      "id": id,
       "name": name,
       "owner": owner,
       "startDatum": startDatum.toIso8601String(),
@@ -38,7 +38,8 @@ final class Regatta {
         startDatum = DateTime.parse(map["startDatum"]),
         endDatum = DateTime.parse(map["endDatum"]),
         standort = map["standort"] as String,
-        teilnehmer = map["teilnehmer"] as Map<String, bool>;
+        teilnehmer = (map["teilnehmer"] ?? <String, bool>{} ) as Map<String, bool>,
+        id = map["id"] as String;
 }
 
 final class Runde {
@@ -64,20 +65,20 @@ final class Runde {
 
 final class User {
   final String name;
-  final Map<String, bool> regatten;
+  final Map<String, Map<String, bool>> hasAccess;
 
-  User(this.name, this.regatten);
+  User(this.name, this.hasAccess);
 
   Map<String, dynamic> toJson() {
     return {
       "name": name,
-      "regatten": regatten,
+      "hasAccess": hasAccess
     };
   }
 
   User.fromJson(Map<String, dynamic> map)
-      : regatten = map["regatten"],
-        name = map["name"];
+      : name = map["name"],
+        hasAccess = map["hasAccess"];
 }
 
 final class Track {

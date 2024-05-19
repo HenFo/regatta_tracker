@@ -1,7 +1,12 @@
+import 'dart:isolate';
+
+import 'package:firebase_auth/firebase_auth.dart' as auth;
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:regatta_tracker2/HelperClasses/kurs.dart';
 import 'package:regatta_tracker2/HelperClasses/regatta.dart';
-import 'package:regatta_tracker2/misc/mock_database.dart';
+import 'package:regatta_tracker2/misc/database.dart';
 import 'package:regatta_tracker2/pages/launch_regatta.dart';
 import 'package:regatta_tracker2/pages/select_course.dart';
 
@@ -10,16 +15,40 @@ typedef CardTapedCallback = void Function(String regattaId);
 class LandingPage extends StatefulWidget {
   const LandingPage({
     super.key,
-    required this.database,
   });
-
-  final Database database;
 
   @override
   State<LandingPage> createState() => _LandingPageState();
 }
 
 class _LandingPageState extends State<LandingPage> {
+  List<Regatta> myRegattas = [];
+
+  @override
+  void initState() {
+    auth.FirebaseAuth.instance.authStateChanges().listen((auth.User? user) {
+      if (user == null) {
+        return;
+      }
+      String userID = user.uid;
+      FirebaseDatabase.instance
+          .ref("user/$userID")
+          .onChildAdded
+          .listen((event) async {
+        print("childevent");
+        List<RegattaDbEntry> newEntries =
+            await Database.getRegattenOfUser(FirebaseDatabase.instance, userID);
+        var newRegatten =
+            newEntries.map((e) => Regatta.fromJson(e)).toList(growable: false);
+
+        setState(() {
+          myRegattas = newRegatten;
+        });
+      });
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,8 +56,7 @@ class _LandingPageState extends State<LandingPage> {
           padding: const EdgeInsets.all(8.0),
           child: GridView.count(
               crossAxisCount: 2,
-              children:
-                  _buildSaveCardsFromRegattaEntries(widget.database.regatten)),
+              children: _buildSaveCardsFromRegattaEntries(myRegattas)),
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
@@ -44,18 +72,16 @@ class _LandingPageState extends State<LandingPage> {
   }
 
   void _saveToDatabase(String name, Kurs k) {
-    // TODO owner setzen
-    Regatta r = Regatta(name, "ICH");
-    setState(() {
-      widget.database.regatten[r.id] = r.toJson();
-    });
-    widget.database.kurse[r.id] = {"0": k.toJson()};
+    String uid = auth.FirebaseAuth.instance.currentUser!.uid;
+    Regatta r = Regatta(name, uid);
+    final db = FirebaseDatabase.instance;
+    final rRef = Database.addRegatta(db, r);
+    Database.addKurs(db, rRef.key!, k);
   }
 
   List<SavedCard> _buildSaveCardsFromRegattaEntries(
-      RegattaDbEntry regattenAsJson) {
-    return regattenAsJson.values
-        .map((regattaJson) => Regatta.fromJson(regattaJson))
+      List<Regatta> regattenAsJson) {
+    return regattenAsJson
         .map((regatta) =>
             SavedCard(regatta: regatta, callback: _onCardPressedCallback))
         .toList(growable: false)
@@ -63,11 +89,12 @@ class _LandingPageState extends State<LandingPage> {
   }
 
   void _onCardPressedCallback(String regattaId) {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) =>
-                RegattaPage(regattaID: regattaId, database: widget.database)));
+    print("card $regattaId tapped");
+    // Navigator.push(
+    //     context,
+    //     MaterialPageRoute(
+    //         builder: (context) =>
+    //             RegattaPage(regattaID: regattaId, database: widget.database)));
   }
 }
 

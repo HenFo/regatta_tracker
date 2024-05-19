@@ -6,7 +6,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:regatta_tracker2/HelperClasses/kurs.dart';
 import 'package:regatta_tracker2/HelperClasses/regatta.dart';
 import 'package:regatta_tracker2/misc/map_drawer.dart';
-import 'package:regatta_tracker2/misc/mock_database.dart';
+import 'package:regatta_tracker2/misc/database.dart';
 import 'package:regatta_tracker2/misc/tile_providers.dart';
 import 'package:regatta_tracker2/widgets/animated_bottom_drawer.dart';
 import 'package:regatta_tracker2/widgets/map_widgets.dart';

@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "976784735392",
+    "firebase_url": "https://regattatracker-700d3-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "regattatracker-700d3",
+    "storage_bucket": "regattatracker-700d3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:976784735392:android:a6e496d0d1c15414ae1dc5",
+        "android_client_info": {
+          "package_name": "com.example.regatta_tracker2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDI0sdSn6LQJAqvqFXb3c2oQn6deWHiD9o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
